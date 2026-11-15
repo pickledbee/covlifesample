@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Covenant Life Website Updates</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine:#511d21; --wine2:#6e2a2f; --gold:#b0832f; --gold-lt:#f3c66b; --navy:#1f3b5e;
+    --paper:#f6f1eb; --card:#ffffff; --ink:#2b1c1e; --muted:#6b5a5c; --line:#e3d8cf;
+    --green:#256b3a; --green-bg:#e3f2e6; --amber-bg:#fbf0d8; --amber:#7a5410; --grey-bg:#eeeae7;
+    --display:"Crimson Pro",Georgia,serif; --body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.5}
+  h1,h2,h3{font-family:var(--display);margin:0;line-height:1.15;font-weight:700}
+  button,input,select,textarea{font:inherit}
+  :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .wrap{max-width:900px;margin:0 auto;padding:0 18px}
+
+  header{background:linear-gradient(135deg,#3d1216,#5a1d23 60%,#2a1420);color:#fbf4ee}
+  header .wrap{display:flex;align-items:center;gap:14px;min-height:76px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+  header .logo{width:46px;height:46px;border-radius:11px;background:#511d21;border:2px solid rgba(243,198,107,.6);display:grid;place-items:center;flex:none}
+  header h1{font-size:1.55rem}
+  header small{display:block;font-family:var(--body);font-size:.85rem;font-weight:400;opacity:.85}
+  header .right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .strip{height:5px;background:linear-gradient(90deg,#6e4f1a,#d9ad55 20%,#f6dc96 35%,#b0832f 50%,#f6dc96 65%,#d9ad55 80%,#6e4f1a)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid transparent;border-radius:10px;padding:12px 20px;font-weight:700;cursor:pointer;text-decoration:none;line-height:1.2;min-height:50px}
+  .btn-main{background:linear-gradient(135deg,#6e2a2f,#511d21);color:#fff}
+  .btn-gold{background:linear-gradient(135deg,#f3c66b,#e09a2d);color:#2a1a06}
+  .btn-plain{background:#fff;color:var(--wine);border-color:var(--line)}
+  .btn-ghost{background:transparent;color:#fbf4ee;border-color:rgba(255,255,255,.5);min-height:42px;padding:8px 14px;font-size:.92rem}
+  .btn-danger{background:#fff;color:#a12a2a;border-color:#e8c4c4}
+  .btn-big{font-size:1.15rem;padding:16px 26px;min-height:60px}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn:hover:not(:disabled){filter:brightness(1.06)}
+
+  main{padding:28px 0 80px}
+  .view{display:none}
+  .view.show{display:block}
+
+  /* login */
+  .login{max-width:460px;margin:30px auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:32px;box-shadow:0 10px 30px rgba(81,29,33,.08)}
+  .login h2{font-size:2rem;margin-bottom:6px}
+  .login input{font-size:1.6rem;letter-spacing:.2em;text-align:center}
+
+  /* home tiles */
+  .hello{margin-bottom:22px}
+  .hello h2{font-size:2.1rem}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media (max-width:640px){.tiles{grid-template-columns:1fr}}
+  .tile{display:flex;gap:16px;align-items:center;text-align:left;background:var(--card);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:14px;padding:22px;cursor:pointer;color:var(--ink);min-height:120px;transition:transform .15s,box-shadow .15s}
+  .tile:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(0,0,0,.08)}
+  .tile .ic{width:58px;height:58px;border-radius:14px;background:var(--c);color:#fff;display:grid;place-items:center;flex:none}
+  .tile b{display:block;color:var(--ink);font-family:var(--display);font-size:1.6rem;line-height:1.1}
+  .tile span{color:var(--muted);font-size:1rem}
+  .t1{--c:#1f3b5e}.t2{--c:#511d21}.t3{--c:#8f2f3a}.t4{--c:#b0832f}
+
+  /* section */
+  .bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .bar h2{font-size:2rem;margin-right:auto}
+  .back{background:none;border:0;color:var(--wine);font-weight:700;cursor:pointer;padding:8px 0;font-size:1.05rem;margin-bottom:6px}
+  .help{background:var(--amber-bg);color:var(--amber);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:1rem}
+  .list{display:grid;gap:14px}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}
+  .item.off{opacity:.7}
+  .cal{width:72px;text-align:center;border-radius:10px;background:var(--wine);color:#fff;padding:6px 0;line-height:1.1}
+  .cal .m{font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .cal .d{font-family:var(--display);font-size:2rem;font-weight:700}
+  .cal .w{font-size:.75rem;opacity:.85}
+  .cal.navy{background:var(--navy)}.cal.gold{background:var(--gold)}.cal.grey{background:#8a7d7f}
+  .item h3{font-size:1.4rem}
+  .item .meta{color:var(--muted);font-size:1rem}
+  .item .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .item .acts .btn{min-height:44px;padding:8px 14px;font-size:.95rem}
+  .pill{display:inline-block;font-size:.82rem;font-weight:700;border-radius:999px;padding:2px 10px;margin-right:6px}
+  .p-on{background:var(--green-bg);color:var(--green)}
+  .p-off{background:var(--grey-bg);color:#5d5254}
+  .p-wait{background:var(--amber-bg);color:var(--amber)}
+  .p-banner{background:#f1e3e2;color:var(--wine)}
+  .empty{background:var(--card);border:2px dashed var(--line);border-radius:14px;padding:26px;text-align:center;color:var(--muted)}
+  details.past{margin-top:22px}
+  details.past summary{cursor:pointer;font-weight:700;color:var(--muted);padding:8px 0}
+
+  /* forms */
+  .form{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;display:grid;gap:20px}
+  .field{display:grid;gap:6px}
+  .field label{font-weight:700;font-size:1.1rem}
+  .field .hint{color:var(--muted);font-size:.95rem;margin-top:-4px}
+  input[type=text],input[type=date],input[type=password],select,textarea{width:100%;border:2px solid var(--line);border-radius:10px;padding:13px 14px;background:#fffdfa;color:var(--ink);font-size:1.1rem}
+  input:focus,select:focus,textarea:focus{border-color:var(--gold);outline:none}
+  textarea{min-height:120px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:560px){.row2{grid-template-columns:1fr}}
+  .check{display:flex;align-items:center;gap:12px;background:var(--paper);border-radius:10px;padding:14px;font-weight:600;cursor:pointer}
+  .check input{width:28px;height:28px;accent-color:var(--wine);flex:none}
+  .form-acts{display:flex;gap:12px;flex-wrap:wrap}
+  .preview{border:2px dashed var(--gold);border-radius:14px;padding:16px;background:#fffaf0}
+  .preview .lbl{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .err{background:#fbe5e5;color:#8a1f1f;border-radius:10px;padding:12px 14px;display:none;font-weight:600}
+  .err.show{display:block}
+
+  /* toast + modal + loading */
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(200%);visibility:hidden;background:var(--green);color:#fff;font-weight:700;padding:14px 22px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .25s;z-index:50;max-width:calc(100vw - 32px);text-align:center}
+  .toast.show{transform:translateX(-50%) translateY(0);visibility:visible}
+  .toast.bad{background:#8a1f1f}
+  .modal{position:fixed;inset:0;background:rgba(30,10,12,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+  .modal.show{display:flex}
+  .modal .box{background:#fff;border-radius:16px;padding:26px;max-width:440px;width:100%;display:grid;gap:16px}
+  .modal h3{font-size:1.6rem}
+  .loading{position:fixed;inset:0;background:rgba(246,241,235,.75);display:none;align-items:center;justify-content:center;z-index:55;font-weight:700;font-size:1.2rem;color:var(--wine);gap:14px}
+  .loading.show{display:flex}
+  .spin{width:34px;height:34px;border-radius:50%;border:4px solid #e9d9c4;border-top-color:var(--wine);animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .demo{background:#fff4d6;color:#6b4a0c;text-align:center;font-size:.9rem;padding:6px}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="demo" id="demoNote" hidden>Demo preview: changes are not saved anywhere. The real page saves to the Google Sheet.</div>
+<header>
+  <div class="wrap">
+    <div class="logo" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 3v18M6 8h12" stroke="#f3c66b" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+    <h1>Covenant Life Website<small>Calendar and announcements updates</small></h1>
+    <div class="right" id="headerBtns" hidden>
+      <a class="btn btn-ghost" id="siteLink" href="https://covenantlifeopc.com/" target="_blank" rel="noopener">View the website</a>
+      <button class="btn btn-ghost" type="button" id="logoutBtn">Sign out</button>
+    </div>
+  </div>
+  <div class="strip"></div>
+</header>
+
+<main class="wrap">
+
+  <!-- LOGIN -->
+  <section class="view show" id="v-login">
+    <form class="login" id="loginForm">
+      <h2>Welcome</h2>
+      <p style="color:var(--muted);margin:0 0 18px">Type the passcode to update the church website.</p>
+      <div class="field">
+        <label for="pass">Passcode</label>
+        <input type="password" id="pass" autocomplete="current-password" inputmode="numeric" required>
+      </div>
+      <label class="check" for="remember" style="margin-top:14px"><input type="checkbox" id="remember" checked> Remember me on this computer</label>
+      <div class="err" id="loginErr" role="alert" style="margin-top:14px"></div>
+      <button class="btn btn-main btn-big" type="submit" style="width:100%;margin-top:16px">Open</button>
+    </form>
+  </section>
+
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="hello"><h2>What would you like to update?</h2><p style="color:var(--muted);margin:4px 0 0">Click one of the big buttons. Changes show on the website within about 2 minutes.</p></div>
+    <div class="tiles">
+      <button class="tile t1" type="button" data-go="sunday">
+        <span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6"/></svg></span>
+        <span><b>This Sunday</b><span id="sumSunday">Sermon title and Bible passage</span></span>
+      </button>
+      <button class="tile t2" type="button" data-go="events">
+        <span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+        <span><b>Events</b><span id="sumEvents">Special services and events</span></span>
+      </button>
+      <button class="tile t3" type="button" data-go="announcements">
+        <span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6"/></svg></span>
+        <span><b>Announcements</b><span id="sumAnn">Short notices for the website</span></span>
+      </button>
+      <button class="tile t4" type="button" data-go="groups">
+        <span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 2 6 5.5"/></svg></span>
+        <span><b>Groups</b><span id="sumGroups">Bible studies and regular meetings</span></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- THIS SUNDAY -->
+  <section class="view" id="v-sunday">
+    <button class="back" type="button" data-go="home">&larr; Back to the main menu</button>
+    <div class="bar"><h2>This Sunday</h2></div>
+    <p class="help" id="sundayHelp">This shows on the home page under "This Sunday."</p>
+    <form class="form" id="sundayForm">
+      <div class="field"><label for="sTitle">Sermon title</label><input type="text" id="sTitle" maxlength="200" placeholder="Example: The Good Shepherd"></div>
+      <div class="field"><label for="sPassage">Bible passage</label><input type="text" id="sPassage" maxlength="120" placeholder="Example: John 10:1-18"></div>
+      <div class="field"><label for="sPreacher">Preacher</label><div class="hint">Leave this blank if our pastor is preaching.</div><input type="text" id="sPreacher" maxlength="120"></div>
+      <div class="field"><label for="sNote">Special note (optional)</label><div class="hint">Example: Communion Sunday. Potluck after worship.</div><input type="text" id="sNote" maxlength="200"></div>
+      <div class="preview"><div class="lbl">How it will look on the website</div><div id="sPreview"></div></div>
+      <div class="form-acts"><button class="btn btn-main btn-big" type="submit">Save This Sunday</button></div>
+    </form>
+  </section>
+
+  <!-- LIST VIEW (events / announcements / groups) -->
+  <section class="view" id="v-list">
+    <button class="back" type="button" data-go="home">&larr; Back to the main menu</button>
+    <div class="bar"><h2 id="listTitle">Events</h2><button class="btn btn-gold btn-big" type="button" id="addBtn">+ Add</button></div>
+    <p class="help" id="listHelp"></p>
+    <div class="list" id="listItems"></div>
+    <details class="past" id="pastWrap"><summary id="pastLabel">Past items</summary><div class="list" id="pastItems" style="margin-top:12px"></div></details>
+  </section>
+
+  <!-- EDITOR -->
+  <section class="view" id="v-edit">
+    <button class="back" type="button" id="cancelTop">&larr; Back without saving</button>
+    <div class="bar"><h2 id="editTitle">Add an event</h2></div>
+    <form class="form" id="editForm" novalidate></form>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="loading" id="loading"><div class="spin"></div><span id="loadingText">Loading...</span></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="box">
+    <h3 id="modalTitle">Are you sure?</h3>
+    <p id="modalText" style="margin:0"></p>
+    <div class="form-acts"><button class="btn btn-danger" type="button" id="modalYes">Yes, delete it</button><button class="btn btn-plain" type="button" id="modalNo">No, keep it</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var PASS = "", DATA = null, current = "events", editing = null;
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var MONTH=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAY=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var DAYL=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var $ = function(id){return document.getElementById(id);};
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+  function parse(iso){var p=iso.split("-");return new Date(+p[0],+p[1]-1,+p[2]);}
+  function longDate(iso){if(!iso)return "";var d=parse(iso);return DAYL[d.getDay()]+", "+MONTH[d.getMonth()]+" "+d.getDate()+", "+d.getFullYear();}
+  function nextSunday(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()+((7-d.getDay())%7));return DAYL[0]+", "+MONTH[d.getMonth()]+" "+d.getDate();}
+
+  // ---------- server calls (with a demo stand-in when opened outside Apps Script) ----------
+  var DEMO = !(window.google && google.script && google.script.run);
+  function call(fn){
+    var args=Array.prototype.slice.call(arguments,1);
+    return new Promise(function(resolve,reject){
+      if(DEMO){setTimeout(function(){try{resolve(Demo[fn].apply(null,args));}catch(e){reject(e);}},250);return;}
+      var r=google.script.run.withSuccessHandler(resolve).withFailureHandler(function(e){reject(e);});
+      r[fn].apply(r,args);
+    });
+  }
+  function msg(e){return (e&&e.message?e.message:String(e)).replace(/^Exception:\s*/,"").replace(/^Error:\s*/,"");}
+
+  // ---------- UI helpers ----------
+  function show(view){
+    Array.prototype.forEach.call(document.querySelectorAll(".view"),function(v){v.classList.toggle("show",v.id==="v-"+view);});
+    window.scrollTo(0,0);
+  }
+  var tt;
+  function toast(text,bad){var t=$("toast");t.textContent=text;t.classList.toggle("bad",!!bad);t.classList.add("show");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("show");},bad?6000:3500);}
+  function busy(on,text){$("loadingText").textContent=text||"Working...";$("loading").classList.toggle("show",!!on);}
+  function confirmBox(title,text){
+    return new Promise(function(res){
+      $("modalTitle").textContent=title;$("modalText").textContent=text;$("modal").classList.add("show");$("modalNo").focus();
+      $("modalYes").onclick=function(){$("modal").classList.remove("show");res(true);};
+      $("modalNo").onclick=function(){$("modal").classList.remove("show");res(false);};
+    });
+  }
+
+  // ---------- login ----------
+  try{var saved=localStorage.getItem("clPass");if(saved){$("pass").value=saved;}}catch(e){}
+  $("loginForm").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var p=$("pass").value.trim();
+    if(!p){$("loginErr").textContent="Please type the passcode.";$("loginErr").classList.add("show");return;}
+    $("loginErr").classList.remove("show");busy(true,"Opening...");
+    call("adminLogin",p).then(function(r){
+      PASS=p;
+      try{ if($("remember").checked) localStorage.setItem("clPass",p); else localStorage.removeItem("clPass"); }catch(e){}
+      if(r&&r.websiteUrl)$("siteLink").href=r.websiteUrl;
+      $("headerBtns").hidden=false;
+      return load();
+    }).then(function(){busy(false);show("home");}).catch(function(e){busy(false);$("loginErr").textContent=msg(e);$("loginErr").classList.add("show");});
+  });
+  $("logoutBtn").onclick=function(){PASS="";try{localStorage.removeItem("clPass");}catch(e){}$("pass").value="";$("headerBtns").hidden=true;show("login");};
+
+  function load(){
+    return call("adminGetAll",PASS).then(function(d){DATA=d;summaries();});
+  }
+  function summaries(){
+    var t=DATA.today;
+    var upE=DATA.events.filter(function(e){return e.date>=t;}).length;
+    var onA=DATA.announcements.filter(function(a){return status(a).key==="on";}).length;
+    $("sumSunday").textContent=DATA.sunday.sermonTitle?("Now showing: "+DATA.sunday.sermonTitle):"Nothing entered yet. Click to add.";
+    $("sumEvents").textContent=upE+" upcoming event"+(upE===1?"":"s");
+    $("sumAnn").textContent=onA+" showing on the website now";
+    $("sumGroups").textContent=DATA.groups.length+" group"+(DATA.groups.length===1?"":"s");
+  }
+
+  // ---------- navigation ----------
+  document.addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-go]");if(!b)return;
+    var go=b.getAttribute("data-go");
+    if(go==="home"){summaries();show("home");}
+    else if(go==="sunday"){openSunday();}
+    else{current=go;renderList();show("list");}
+  });
+
+  // ---------- this sunday ----------
+  function openSunday(){
+    var s=DATA.sunday;$("sTitle").value=s.sermonTitle;$("sPassage").value=s.passage;$("sPreacher").value=s.preacher;$("sNote").value=s.note;
+    $("sundayHelp").textContent="This shows on the home page under \"This Sunday\" ("+nextSunday()+"). Change it once a week.";
+    sPreview();show("sunday");
+  }
+  function sPreview(){
+    var t=$("sTitle").value.trim(),p=$("sPassage").value.trim(),pr=$("sPreacher").value.trim(),n=$("sNote").value.trim();
+    $("sPreview").innerHTML='<div style="font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--wine)">'+esc(nextSunday())+'</div><div><b>Sermon:</b> '+(t?esc(t):'<i style="color:var(--muted)">no title yet</i>')+(p?' ('+esc(p)+')':'')+(pr?' &middot; '+esc(pr):'')+'</div>'+(n?'<div style="color:var(--muted)">'+esc(n)+'</div>':'');
+  }
+  ["sTitle","sPassage","sPreacher","sNote"].forEach(function(id){$(id).addEventListener("input",sPreview);});
+  $("sundayForm").addEventListener("submit",function(ev){
+    ev.preventDefault();busy(true,"Saving...");
+    var data={sermonTitle:$("sTitle").value,passage:$("sPassage").value,preacher:$("sPreacher").value,note:$("sNote").value};
+    call("adminSaveSunday",PASS,data).then(load).then(function(){busy(false);toast("Saved! The website will update within 2 minutes.");summaries();show("home");}).catch(function(e){busy(false);toast(msg(e),true);});
+  });
+
+  // ---------- lists ----------
+  var CONF={
+    events:{title:"Events",add:"+ Add an event",help:"Events disappear from the website by themselves after their date. Use \"Hide\" to take one off the website without deleting it.",past:"Past events (already off the website)"},
+    announcements:{title:"Announcements",add:"+ Add an announcement",help:"Announcements show between their \"Show from\" and \"Show until\" dates, then go away by themselves.",past:"Expired announcements (already off the website)"},
+    groups:{title:"Groups",add:"+ Add a group",help:"The website works out each group's next meeting date by itself.",past:""}
+  };
+  function status(a){
+    var t=DATA.today;
+    if(!a.show)return {key:"off",html:'<span class="pill p-off">Hidden</span>'};
+    if(a.until&&a.until<t)return {key:"past",html:'<span class="pill p-off">Expired</span>'};
+    if(a.from&&a.from>t)return {key:"wait",html:'<span class="pill p-wait">Starts '+esc(shortDate(a.from))+'</span>'};
+    return {key:"on",html:'<span class="pill p-on">Showing now</span>'};
+  }
+  function shortDate(iso){var d=parse(iso);return MON[d.getMonth()]+" "+d.getDate();}
+  function calBox(iso,cls){if(!iso)return '<div class="cal grey"><div class="m">No</div><div class="d">?</div><div class="w">date</div></div>';var d=parse(iso);return '<div class="cal '+(cls||"")+'"><div class="m">'+MON[d.getMonth()]+'</div><div class="d">'+d.getDate()+'</div><div class="w">'+DAY[d.getDay()]+'</div></div>';}
+  function groupBox(day){var i=DAYL.indexOf(day);return '<div class="cal gold"><div class="m">Every</div><div class="d" style="font-size:1.4rem;padding:6px 0">'+(i>=0?DAY[i]:"?")+'</div><div class="w">day</div></div>';}
+  function acts(type,it){
+    return '<div class="acts"><button class="btn btn-main" type="button" data-act="edit" data-id="'+esc(it.id)+'">Edit</button>'+
+      '<button class="btn btn-plain" type="button" data-act="toggle" data-id="'+esc(it.id)+'">'+(it.show?"Hide from website":"Show on website")+'</button>'+
+      '<button class="btn btn-danger" type="button" data-act="delete" data-id="'+esc(it.id)+'">Delete</button></div>';
+  }
+  function cardHtml(type,it){
+    var t=DATA.today;
+    if(type==="events"){
+      var past=it.date&&it.date<t;
+      var pill=!it.show?'<span class="pill p-off">Hidden</span>':past?'<span class="pill p-off">Past</span>':'<span class="pill p-on">On the website</span>';
+      return '<div class="item'+(it.show&&!past?"":" off")+'">'+calBox(it.date,past?"grey":"")+'<div><div>'+pill+'</div><h3>'+esc(it.title)+'</h3><div class="meta">'+esc(longDate(it.date))+(it.start?' &middot; '+esc(it.start):'')+(it.end?' to '+esc(it.end):'')+(it.where?' &middot; '+esc(it.where):'')+'</div>'+(it.desc?'<p style="margin:6px 0 0">'+esc(it.desc)+'</p>':'')+acts(type,it)+'</div></div>';
+    }
+    if(type==="announcements"){
+      var st=status(it);
+      return '<div class="item'+(st.key==="on"?"":" off")+'">'+calBox(it.until||it.from,"navy")+'<div><div>'+st.html+(it.banner?'<span class="pill p-banner">Banner at top</span>':'')+'</div><h3>'+esc(it.headline)+'</h3>'+(it.details?'<p style="margin:4px 0 0">'+esc(it.details)+'</p>':'')+'<div class="meta">'+(it.from?'From '+esc(longDate(it.from)):'Showing right away')+(it.until?' until '+esc(longDate(it.until)):', no end date')+'</div>'+acts(type,it)+'</div></div>';
+    }
+    return '<div class="item'+(it.show?"":" off")+'">'+groupBox(it.day)+'<div><div>'+(it.show?'<span class="pill p-on">On the website</span>':'<span class="pill p-off">Hidden</span>')+'</div><h3>'+esc(it.name)+'</h3><div class="meta">'+esc(it.weeks==="Every week"?"Every "+it.day:(it.weeks==="Last"?"Last "+it.day+" of the month":it.weeks+" "+it.day+(it.weeks.indexOf("&")>=0?"s":"")))+(it.time?' &middot; '+esc(it.time):'')+(it.where?' &middot; '+esc(it.where):'')+'</div>'+(it.desc?'<p style="margin:6px 0 0">'+esc(it.desc)+'</p>':'')+(it.leader?'<div class="meta">Leader: '+esc(it.leader)+'</div>':'')+(it.note?'<div class="meta">'+esc(it.note)+'</div>':'')+acts(type,it)+'</div></div>';
+  }
+  function renderList(){
+    var c=CONF[current],t=DATA.today,items=DATA[current].slice();
+    $("listTitle").textContent=c.title;$("addBtn").textContent=c.add;$("listHelp").textContent=c.help;
+    var now=[],past=[];
+    if(current==="events"){
+      items.sort(function(a,b){return (a.date||"").localeCompare(b.date||"");});
+      items.forEach(function(e){(e.date&&e.date<t?past:now).push(e);});past.reverse();
+    }else if(current==="announcements"){
+      items.forEach(function(a){(status(a).key==="past"?past:now).push(a);});
+    }else{now=items;}
+    $("listItems").innerHTML=now.length?now.map(function(i){return cardHtml(current,i);}).join(""):'<div class="empty">Nothing here yet. Click the gold "'+esc(c.add.replace("+ ",""))+'" button to add one.</div>';
+    $("pastWrap").hidden=!past.length;$("pastLabel").textContent=c.past+" ("+past.length+")";
+    $("pastItems").innerHTML=past.map(function(i){return cardHtml(current,i);}).join("");
+  }
+  document.getElementById("v-list").addEventListener("click",function(ev){
+    var b=ev.target.closest("[data-act]");if(!b)return;
+    var id=b.getAttribute("data-id"),it=DATA[current].filter(function(x){return String(x.id)===id;})[0];if(!it)return;
+    var act=b.getAttribute("data-act");
+    if(act==="edit"){openEditor(it);}
+    else if(act==="toggle"){busy(true,"Saving...");call("adminSetShow",PASS,current,id,!it.show).then(load).then(function(){busy(false);renderList();toast(it.show?"Hidden from the website.":"Now showing on the website.");}).catch(function(e){busy(false);toast(msg(e),true);});}
+    else if(act==="delete"){
+      var name=it.title||it.headline||it.name;
+      confirmBox("Delete this?","\""+name+"\" will be removed for good. If you only want to take it off the website for now, choose \"Hide from website\" instead.").then(function(yes){
+        if(!yes)return;busy(true,"Deleting...");
+        call("adminDeleteItem",PASS,current,id).then(load).then(function(){busy(false);renderList();toast("Deleted.");}).catch(function(e){busy(false);toast(msg(e),true);});
+      });
+    }
+  });
+  $("addBtn").onclick=function(){openEditor(null);};
+
+  // ---------- editor ----------
+  function opts(list,val,blank){return (blank?'<option value="">'+blank+'</option>':'')+list.map(function(o){return '<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>';}).join("");}
+  function fld(id,label,input,hint){return '<div class="field"><label for="'+id+'">'+label+'</label>'+(hint?'<div class="hint">'+hint+'</div>':'')+input+'</div>';}
+  function txt(id,v,ph,max){return '<input type="text" id="'+id+'" value="'+esc(v)+'" placeholder="'+esc(ph||"")+'" maxlength="'+(max||200)+'">';}
+  function openEditor(it){
+    editing=it?JSON.parse(JSON.stringify(it)):null;
+    var o=DATA.options,f=$("editForm"),h="";
+    var noun={events:"event",announcements:"announcement",groups:"group"}[current];
+    $("editTitle").textContent=(it?"Change this ":"Add an ")+noun;
+    if(current==="events"){
+      var e=it||{title:"",date:"",start:"",end:"",where:"Covenant Life",desc:"",show:true};
+      h+=fld("fTitle","Event name",txt("fTitle",e.title,"Example: Thanksgiving Eve Service"));
+      h+=fld("fDate","Date",'<input type="date" id="fDate" value="'+esc(e.date)+'">',"Click the box to pick from a calendar.");
+      h+='<div class="row2">'+fld("fStart","Start time",'<select id="fStart">'+opts(o.times,e.start,"Pick a time")+'</select>')+fld("fEnd","End time (optional)",'<select id="fEnd">'+opts(o.times,e.end,"No end time")+'</select>')+'</div>';
+      h+=fld("fWhere","Where",txt("fWhere",e.where,"Covenant Life"),"Leave as \"Covenant Life\" if it is at the church.");
+      h+=fld("fDesc","Short description",'<textarea id="fDesc" maxlength="600" placeholder="One or two sentences.">'+esc(e.desc)+'</textarea>');
+      h+='<label class="check" for="fShow"><input type="checkbox" id="fShow"'+(e.show?" checked":"")+'> Show this on the website</label>';
+    }else if(current==="announcements"){
+      var a=it||{headline:"",details:"",from:"",until:"",banner:false,show:true};
+      h+=fld("fHeadline","Headline",txt("fHeadline",a.headline,"Example: No Sunday School on December 27"),"Keep it short. One line is best.");
+      h+=fld("fDetails","More details (optional)",'<textarea id="fDetails" maxlength="600">'+esc(a.details)+'</textarea>');
+      h+='<div class="row2">'+fld("fFrom","Show from (optional)",'<input type="date" id="fFrom" value="'+esc(a.from)+'">',"Blank means start today.")+fld("fUntil","Show until (optional)",'<input type="date" id="fUntil" value="'+esc(a.until)+'">',"Blank means keep it up until you hide it.")+'</div>';
+      h+='<label class="check" for="fBanner"><input type="checkbox" id="fBanner"'+(a.banner?" checked":"")+'> Make this a banner across the top of every page (for important news)</label>';
+      h+='<label class="check" for="fShow"><input type="checkbox" id="fShow"'+(a.show?" checked":"")+'> Show this on the website</label>';
+    }else{
+      var g=it||{name:"",day:"",weeks:"",time:"",where:"",map:"",desc:"",leader:"",note:"",show:true};
+      h+=fld("fName","Group name",txt("fName",g.name,"Example: Men's Bible Study"));
+      h+='<div class="row2">'+fld("fDay","Day it meets",'<select id="fDay">'+opts(o.days,g.day,"Pick a day")+'</select>')+fld("fWeeks","Which weeks",'<select id="fWeeks">'+opts(o.weeks,g.weeks,"Pick which weeks")+'</select>')+'</div>';
+      h+='<div class="row2">'+fld("fTime","Time",'<select id="fTime">'+opts(o.times,g.time,"Pick a time")+'</select>')+fld("fWhere","Where",txt("fWhere",g.where,"Covenant Life"))+'</div>';
+      h+=fld("fMap","Address for the map (optional)",txt("fMap",g.map,"Example: 123 Main St., Shawano, WI"),"Only needed if it meets somewhere other than the church.");
+      h+=fld("fDesc","Short description",'<textarea id="fDesc" maxlength="600">'+esc(g.desc)+'</textarea>');
+      h+='<div class="row2">'+fld("fLeader","Leader's name (optional)",txt("fLeader",g.leader,"First name is fine"))+fld("fNote","Extra note (optional)",txt("fNote",g.note,"Example: This month's book: Pilgrim's Progress"))+'</div>';
+      h+='<label class="check" for="fShow"><input type="checkbox" id="fShow"'+(g.show?" checked":"")+'> Show this on the website</label>';
+    }
+    h+='<div class="preview"><div class="lbl">How it will look on the website</div><div id="fPreview"></div></div>';
+    h+='<div class="err" id="editErr" role="alert"></div>';
+    h+='<div class="form-acts"><button class="btn btn-main btn-big" type="submit">Save</button><button class="btn btn-plain btn-big" type="button" id="cancelBtn">Cancel</button></div>';
+    f.innerHTML=h;
+    f.oninput=f.onchange=preview;preview();
+    $("cancelBtn").onclick=function(){show("list");};
+    show("edit");
+    var first=f.querySelector("input,select,textarea");if(first)first.focus();
+  }
+  $("cancelTop").onclick=function(){show("list");};
+  function v(id){var el=$(id);return el?(el.type==="checkbox"?el.checked:el.value.trim()):"";}
+  function collect(){
+    var id=editing?editing.id:"";
+    if(current==="events")return {id:id,title:v("fTitle"),date:v("fDate"),start:v("fStart"),end:v("fEnd"),where:v("fWhere"),desc:v("fDesc"),show:v("fShow")};
+    if(current==="announcements")return {id:id,headline:v("fHeadline"),details:v("fDetails"),from:v("fFrom"),until:v("fUntil"),banner:v("fBanner"),show:v("fShow")};
+    return {id:id,name:v("fName"),day:v("fDay"),weeks:v("fWeeks"),time:v("fTime"),where:v("fWhere"),map:v("fMap"),desc:v("fDesc"),leader:v("fLeader"),note:v("fNote"),show:v("fShow")};
+  }
+  function preview(){
+    var o=collect(),h;
+    if(current==="events"){h='<div style="display:flex;gap:14px">'+calBox(o.date)+'<div><b style="font-size:1.2rem">'+(esc(o.title)||'<i>Event name</i>')+'</b><div class="meta" style="color:var(--muted)">'+(o.date?esc(longDate(o.date)):"Pick a date")+(o.start?' &middot; '+esc(o.start):'')+' &middot; '+esc(o.where||"Covenant Life")+'</div><div>'+esc(o.desc)+'</div></div></div>';}
+    else if(current==="announcements"){h=o.banner?'<div style="background:linear-gradient(90deg,#b0832f,#e0b45e);color:#2a1a06;padding:10px 14px;border-radius:8px;font-weight:700">'+(esc(o.headline)||"Headline")+(o.details?' <span style="font-weight:400">'+esc(o.details)+'</span>':'')+'</div>':'<b style="font-size:1.2rem">'+(esc(o.headline)||'<i>Headline</i>')+'</b><div>'+esc(o.details)+'</div>';}
+    else{var wk=o.weeks==="Every week"?"Every "+o.day:(o.weeks&&o.day?o.weeks+" "+o.day+(o.weeks.indexOf("&")>=0?"s":""):"Pick a day and weeks");h='<b style="font-size:1.2rem">'+(esc(o.name)||'<i>Group name</i>')+'</b><div style="color:var(--muted)">'+esc(wk)+(o.time?' &middot; '+esc(o.time):'')+(o.where?' &middot; '+esc(o.where):'')+'</div><div>'+esc(o.desc)+'</div>';}
+    if(!o.show)h+='<div style="margin-top:8px"><span class="pill p-off">Hidden: will not show on the website</span></div>';
+    $("fPreview").innerHTML=h;
+  }
+  $("editForm").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var o=collect(),err="";
+    if(current==="events"){if(!o.title)err="Please type a name for the event.";else if(!o.date)err="Please pick a date.";}
+    else if(current==="announcements"){if(!o.headline)err="Please type a headline.";else if(o.from&&o.until&&o.from>o.until)err="The \"Show until\" date is before the \"Show from\" date.";}
+    else{if(!o.name)err="Please type the group's name.";else if(!o.day)err="Please pick the day it meets.";else if(!o.weeks)err="Please pick which weeks it meets.";}
+    if(err){$("editErr").textContent=err;$("editErr").classList.add("show");$("editErr").scrollIntoView({block:"center"});return;}
+    busy(true,"Saving...");
+    call("adminSaveItem",PASS,current,o).then(load).then(function(){busy(false);renderList();show("list");toast("Saved! The website will update within 2 minutes.");}).catch(function(e){busy(false);$("editErr").textContent=msg(e);$("editErr").classList.add("show");});
+  });
+
+  // ---------- demo stand-in so the page can be previewed outside Apps Script ----------
+  var Demo=(function(){
+    function iso(off){var d=new Date();d.setDate(d.getDate()+off);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);}
+    var times=[];for(var m=360;m<=1305;m+=15){var h24=Math.floor(m/60),mi=m%60,h=h24%12||12;times.push(h+":"+(mi<10?"0":"")+mi+" "+(h24<12?"AM":"PM"));}
+    var db={today:iso(0),sunday:{sermonTitle:"The Good Shepherd",passage:"John 10:1-18",preacher:"",note:""},
+      events:[{id:"e1",title:"Community Christmas Carol Sing",date:"2026-12-06",start:"1:00 PM",end:"2:30 PM",where:"Covenant Life",desc:"Bring the whole family and your neighbors for an afternoon of favorite carols.",show:true},
+              {id:"e0",title:"Communion Service",date:"2026-11-08",start:"10:30 AM",end:"",where:"Covenant Life",desc:"We celebrate the Lord's Supper together during morning worship.",show:true}],
+      announcements:[{id:"a1",headline:"Community Christmas Carol Sing, Sunday, December 6 at 1:00 PM",details:"Bring a friend! Everyone is welcome.",from:"",until:"2026-12-06",banner:true,show:true}],
+      groups:[{id:"g1",name:"Men's Bible Study",day:"Wednesday",weeks:"2nd & 4th",time:"11:30 AM",where:"Beans and Books",map:"",desc:"Men of all ages working through a book of the Bible over lunch.",leader:"",note:"",show:true},
+              {id:"g2",name:"Ladies' Bible Study",day:"Monday",weeks:"1st & 2nd",time:"3:45 PM",where:"Covenant Life",map:"",desc:"Women studying Scripture together.",leader:"",note:"",show:true},
+              {id:"g3",name:"Book Club",day:"Thursday",weeks:"1st",time:"1:30 PM",where:"Beans and Books",map:"",desc:"Good books and good conversation over coffee.",leader:"",note:"",show:true}],
+      options:{times:times,days:DAYL,weeks:["Every week","1st","2nd","3rd","4th","Last","1st & 3rd","2nd & 4th","1st & 2nd"]}};
+    function chk(p){if(!p)throw new Error("Please type the passcode.");}
+    return {
+      adminLogin:function(p){chk(p);return {ok:true,websiteUrl:"https://covenantlifeopc.com/"};},
+      adminGetAll:function(){return JSON.parse(JSON.stringify(db));},
+      adminSaveSunday:function(p,d){db.sunday={sermonTitle:d.sermonTitle,passage:d.passage,preacher:d.preacher,note:d.note};return {ok:true};},
+      adminSaveItem:function(p,t,o){if(!o.id){o.id="n"+Date.now();db[t].push(o);}else{db[t]=db[t].map(function(x){return x.id===o.id?o:x;});}return {ok:true};},
+      adminSetShow:function(p,t,id,s){db[t].forEach(function(x){if(x.id===id)x.show=s;});return {ok:true};},
+      adminDeleteItem:function(p,t,id){db[t]=db[t].filter(function(x){return x.id!==id;});return {ok:true};}
+    };
+  })();
+  if(DEMO){$("demoNote").hidden=false;$("pass").placeholder="Type anything to try it";}
+})();
+</script>
+</body>
+</html>
