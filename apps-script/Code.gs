@@ -644,3 +644,48 @@ function whenLabel_(day, weeks) {
   if (weeks === 'Last') return 'Last ' + day + ' of the month';
   return weeks + ' ' + day + (weeks.indexOf('&') >= 0 ? 's' : '');
 }
+
+// ===================== WEBSITE QUESTIONNAIRE (no sign-in) =====================
+// The questions page on the website sends answers here. Each "Send" adds one row.
+const Q_TAB = 'Website Questionnaire';
+const NOTIFY_EMAIL = 'stradman100@gmail.com';
+
+function doPost(e) {
+  try {
+    const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    if (data.type !== 'questionnaire' || !Array.isArray(data.answers)) throw new Error('Unknown request');
+    if (data.answers.length > 200) throw new Error('Too many answers');
+    const ss = SpreadsheetApp.openById(SHEET_ID);
+    const sh = ss.getSheetByName(Q_TAB) || ss.insertSheet(Q_TAB);
+    if (sh.getLastRow() === 0) {
+      const headers = ['Received', 'Name', 'Phone or Email', 'Helped by']
+        .concat(data.answers.map(function (a) { return a.n + '. ' + a.q; }));
+      sh.getRange(1, 1, 1, headers.length).setValues([headers])
+        .setBackground(BURGUNDY).setFontColor('#ffffff').setFontWeight('bold').setWrap(true).setVerticalAlignment('top');
+      sh.setFrozenRows(1); sh.setFrozenColumns(2);
+      sh.setColumnWidths(1, headers.length, 260);
+      sh.setTabColor(GOLD);
+    }
+    const row = [new Date(), clean_(data.name), clean_(data.contact), clean_(data.helpers)]
+      .concat(data.answers.map(function (a) { return clean_(a.a); }));
+    sh.appendRow(row);
+    sh.getRange(sh.getLastRow(), 1, 1, row.length).setWrap(true).setVerticalAlignment('top');
+    try {
+      const answered = data.answers.filter(function (a) { return a.a; });
+      const body = 'New answers from ' + (clean_(data.name) || 'someone') + ' (' + answered.length + ' questions answered).\n\n' +
+        answered.map(function (a) { return a.n + '. ' + a.q + '\n   ' + clean_(a.a); }).join('\n\n') +
+        '\n\nSee them all in the "' + Q_TAB + '" tab:\n' + ss.getUrl();
+      MailApp.sendEmail(NOTIFY_EMAIL, 'Covenant Life website questionnaire received', body);
+    } catch (mailErr) { /* answers are still saved in the sheet */ }
+    return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err.message || err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+/** Run this once from the editor to approve email sending and test it. */
+function testQuestionnaireEmail() {
+  MailApp.sendEmail(NOTIFY_EMAIL, 'Covenant Life questionnaire: test email',
+    'Email notifications are working. When someone presses Send on the questions page, you will get an email like this with their answers.');
+}
