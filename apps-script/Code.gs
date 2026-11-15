@@ -14,6 +14,8 @@
 const SHEET_ID       = '1UUcsFhQJj3ElTh_wfU0-Lpn0N2P_Bwp-OGED2DbuMYw';
 const SHEET_TITLE    = 'Covenant Life Calendar and Announcements Updates';
 const WEBSITE_URL    = 'https://covenantlifeopc.com/';
+// Your web app link (Deploy > Manage deployments). The menu's "Open the admin page" uses this.
+const ADMIN_URL      = 'https://script.google.com/macros/s/AKfycbz4TMwfmNNLSUYDGOLv8MJLm2ThOWV37o9yRThc9Mu4z0KrSP-HilZZV45kylmVTn5d/exec';
 const CHURCH_ADDRESS = '1415 E. Green Bay St., Shawano, WI';
 const TZ             = 'America/Chicago';
 const FEED_CACHE_SECONDS = 120;   // website sees changes within about 2 minutes
@@ -481,7 +483,7 @@ function refreshWebsiteNow() {
 }
 
 function showAdminLink() {
-  const url = ScriptApp.getService().getUrl();
+  const url = ADMIN_URL || ScriptApp.getService().getUrl();
   const html = url
     ? '<div style="font-family:Arial;font-size:15px;line-height:1.5">' +
       '<p><a href="' + url + '" target="_blank" style="display:inline-block;background:#511d21;color:#fff;' +
