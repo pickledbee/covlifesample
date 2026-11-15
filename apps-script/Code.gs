@@ -736,3 +736,16 @@ function testQuestionnaireEmail() {
   MailApp.sendEmail(NOTIFY_EMAIL, 'Covenant Life questionnaire: test email',
     'Email notifications are working. When someone presses Send on the questions page, you will get an email like this with their answers.');
 }
+
+/** Run this from the editor to test saving WITHOUT the website.
+ *  If the "Website Questionnaire" tab appears, the code works and any problem is the deployment. */
+function testQuestionnaireSave() {
+  const fake = { postData: { contents: JSON.stringify({
+    type: 'questionnaire', mode: 'autosave', id: 'test-row', name: 'Test (you can delete this row)',
+    contact: '', helpers: '',
+    answers: [{ n: 1, q: 'Test question', a: 'Test answer ' + new Date().toLocaleTimeString() }]
+  }) } };
+  const out = doPost(fake).getContent();
+  Logger.log(out);
+  try { SpreadsheetApp.getUi().alert('Result: ' + out); } catch (e) {}
+}
