@@ -60,8 +60,8 @@ input:focus,textarea:focus{outline:none;border-color:var(--gold)}
 <div class="strip"></div>
 <main class="wrap">
 <div class="steps"><div><b>1. Click and type</b><span>Click the boxes that fit. Type a few words where you'd like.</span></div>
-<div><b>2. Take a break anytime</b><span>Your answers are saved on this computer as you go. Come back to this same link later.</span></div>
-<div><b>3. Press Send</b><span>The big gold button is at the bottom. No sign-in needed.</span></div></div>
+<div><b>2. Saved as you go</b><span>Every answer is saved the moment you make it. Stop anytime and come back to this same link later.</span></div>
+<div><b>3. Press Send when done</b><span>The big gold button is at the bottom. It lets Bruce know you're finished. No sign-in needed.</span></div></div>
 <form id="qf" novalidate>
 <div class="about">
 <label class="f" for="name">Your name<input type="text" id="name" name="name" autocomplete="name"></label>
@@ -76,9 +76,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--gold)}
 <button class="btn2" type="button" id="printBtn">Print a copy for my records</button>
 </div>
 </form>
-<div class="ok" id="ok"><h2>Thank you!</h2><p>Your answers were sent to Bruce. If you think of anything else, you can come back to this page and send it again.</p></div>
+<div class="ok" id="ok"><h2>Thank you!</h2><p>Your answers were sent to Bruce. If you think of anything else, come back to this same page anytime. Your answers will still be there, and any changes save automatically.</p></div>
 </main>
-<div class="saved" id="saved">Saved on this computer</div>
+<div class="saved" id="saved" role="status" aria-live="polite">Saved</div>
 <script>
 (function(){
   var URL="https://script.google.com/macros/s/AKfycbz4TMwfmNNLSUYDGOLv8MJLm2ThOWV37o9yRThc9Mu4z0KrSP-HilZZV45kylmVTn5d/exec";
@@ -103,23 +103,61 @@ input:focus,textarea:focus{outline:none;border-color:var(--gold)}
     });
   }
   restore();
-  var t,s=document.getElementById("saved");
-  f.addEventListener("input",function(){try{localStorage.setItem(KEY,JSON.stringify(collect()));}catch(e){}clearTimeout(t);s.classList.add("show");t=setTimeout(function(){s.classList.remove("show");},1200);});
-  document.getElementById("printBtn").onclick=function(){window.print();};
-  f.addEventListener("submit",function(ev){
-    ev.preventDefault();
-    var d=collect();if(d.website)return;
+  // ----- Each visitor gets one ID, so their row in the sheet updates instead of adding new rows -----
+  var IDKEY="clQuestionsId",RID;
+  try{RID=localStorage.getItem(IDKEY);}catch(e){}
+  if(!RID){RID=Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,10);try{localStorage.setItem(IDKEY,RID);}catch(e){}}
+
+  function payload(mode){
+    var d=collect();
     var answers=META.map(function(m){
       var v=d["q"+m.n],note=d["q"+m.n+"_note"]||"";
       var a=Array.isArray(v)?v.join(", "):(v||"");
       if(note)a=a?(a+" | "+note):note;
       return {n:m.n,q:m.q,a:a.trim()};
     });
-    if(!answers.some(function(a){return a.a;})&&!d.name){document.getElementById("msg").textContent="Please answer at least one question before sending.";return;}
+    return {d:d,body:JSON.stringify({type:"questionnaire",mode:mode,id:RID,name:d.name||"",contact:d.contact||"",helpers:d.helpers||"",answers:answers})};
+  }
+  function post(body){
+    return fetch(URL,{method:"POST",mode:"no-cors",keepalive:true,headers:{"Content-Type":"text/plain;charset=utf-8"},body:body});
+  }
+
+  // ----- Live saving: send changes to the sheet a moment after each change -----
+  var s=document.getElementById("saved"),hideT,timer=null,busy=false,again=false,dirty=false,lastSent="";
+  function note(text){s.textContent=text;s.classList.add("show");clearTimeout(hideT);hideT=setTimeout(function(){s.classList.remove("show");},1800);}
+  function saveNow(){
+    timer=null;
+    var p=payload("autosave");if(p.d.website)return;
+    if(p.body===lastSent){dirty=false;return;}
+    if(busy){again=true;return;}
+    busy=true;dirty=false;note("Saving...");
+    post(p.body).then(function(){lastSent=p.body;note("Saved ✓");})
+      .catch(function(){dirty=true;note("Saved on this computer. Will try again.");})
+      .then(function(){busy=false;if(again||dirty){again=false;schedule(3000);}});
+  }
+  function schedule(ms){dirty=true;clearTimeout(timer);timer=setTimeout(saveNow,ms);}
+  f.addEventListener("input",function(ev){
+    try{localStorage.setItem(KEY,JSON.stringify(collect()));}catch(e){}
+    schedule(ev.target.type==="checkbox"?400:1200);
+  });
+  // If they close the tab or switch away, save right away
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="hidden"&&dirty){
+      var p=payload("autosave");
+      if(p.body!==lastSent){try{if(!navigator.sendBeacon(URL,new Blob([p.body],{type:"text/plain;charset=utf-8"})))post(p.body);}catch(e){post(p.body);}lastSent=p.body;dirty=false;}
+    }
+  });
+
+  document.getElementById("printBtn").onclick=function(){window.print();};
+  f.addEventListener("submit",function(ev){
+    ev.preventDefault();
+    clearTimeout(timer);
+    var p=payload("final");if(p.d.website)return;
+    var any=JSON.parse(p.body).answers.some(function(a){return a.a;});
+    if(!any&&!p.d.name){document.getElementById("msg").textContent="Please answer at least one question before sending.";return;}
     var b=document.getElementById("sendBtn");b.disabled=true;b.textContent="Sending...";
-    fetch(URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({type:"questionnaire",name:d.name||"",contact:d.contact||"",helpers:d.helpers||"",answers:answers})})
-    .then(function(){f.style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);})
+    post(p.body)
+    .then(function(){lastSent=p.body;dirty=false;f.style.display="none";document.getElementById("ok").style.display="block";window.scrollTo(0,0);})
     .catch(function(){b.disabled=false;b.textContent="Send my answers";document.getElementById("msg").textContent="It didn't send. Please check your internet connection and press Send again. Your answers are still saved.";});
   });
 })();

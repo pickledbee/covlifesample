@@ -646,42 +646,87 @@ function whenLabel_(day, weeks) {
 }
 
 // ===================== WEBSITE QUESTIONNAIRE (no sign-in) =====================
-// The questions page on the website sends answers here. Each "Send" adds one row.
+// The questions page saves answers here as people type. Each person gets ONE row,
+// which is updated every time they change an answer. Pressing "Send" marks the row
+// as Sent and emails you the answers.
 const Q_TAB = 'Website Questionnaire';
 const NOTIFY_EMAIL = 'stradman100@gmail.com';
+const Q_FIXED = ['Response ID', 'Status', 'Last Updated', 'Name', 'Phone or Email', 'Helped by'];
 
 function doPost(e) {
   try {
     const data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (data.type !== 'questionnaire' || !Array.isArray(data.answers)) throw new Error('Unknown request');
     if (data.answers.length > 200) throw new Error('Too many answers');
-    const ss = SpreadsheetApp.openById(SHEET_ID);
-    const sh = ss.getSheetByName(Q_TAB) || ss.insertSheet(Q_TAB);
-    if (sh.getLastRow() === 0) {
-      const headers = ['Received', 'Name', 'Phone or Email', 'Helped by']
-        .concat(data.answers.map(function (a) { return a.n + '. ' + a.q; }));
-      sh.getRange(1, 1, 1, headers.length).setValues([headers])
-        .setBackground(BURGUNDY).setFontColor('#ffffff').setFontWeight('bold').setWrap(true).setVerticalAlignment('top');
-      sh.setFrozenRows(1); sh.setFrozenColumns(2);
-      sh.setColumnWidths(1, headers.length, 260);
-      sh.setTabColor(GOLD);
-    }
-    const row = [new Date(), clean_(data.name), clean_(data.contact), clean_(data.helpers)]
-      .concat(data.answers.map(function (a) { return clean_(a.a); }));
-    sh.appendRow(row);
-    sh.getRange(sh.getLastRow(), 1, 1, row.length).setWrap(true).setVerticalAlignment('top');
+    const id = String(data.id || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 40);
+    if (!id) throw new Error('Missing response id');
+    const isFinal = data.mode === 'final';
+
+    const lock = LockService.getScriptLock();
+    lock.waitLock(20000);
+    let sh, ss;
     try {
-      const answered = data.answers.filter(function (a) { return a.a; });
-      const body = 'New answers from ' + (clean_(data.name) || 'someone') + ' (' + answered.length + ' questions answered).\n\n' +
-        answered.map(function (a) { return a.n + '. ' + a.q + '\n   ' + clean_(a.a); }).join('\n\n') +
-        '\n\nSee them all in the "' + Q_TAB + '" tab:\n' + ss.getUrl();
-      MailApp.sendEmail(NOTIFY_EMAIL, 'Covenant Life website questionnaire received', body);
-    } catch (mailErr) { /* answers are still saved in the sheet */ }
+      ss = SpreadsheetApp.openById(SHEET_ID);
+      sh = questionnaireSheet_(ss, data.answers);
+      const row = [id, isFinal ? 'Sent' : 'In progress', new Date(),
+                   clean_(data.name), clean_(data.contact), clean_(data.helpers)]
+        .concat(data.answers.map(function (a) { return clean_(a.a); }));
+      let r = findRowById_(sh, id);
+      if (r) {
+        // Never change a "Sent" row back to "In progress"
+        if (!isFinal && sh.getRange(r, 2).getValue() === 'Sent') row[1] = 'Sent (updated)';
+      } else {
+        r = sh.getLastRow() + 1;
+      }
+      sh.getRange(r, 1, 1, row.length).setValues([row]).setWrap(true).setVerticalAlignment('top');
+      sh.getRange(r, 3).setNumberFormat('mmm d, h:mm am/pm');
+    } finally {
+      lock.releaseLock();
+    }
+
+    if (isFinal) {
+      try {
+        const answered = data.answers.filter(function (a) { return a.a; });
+        const body = 'Answers sent by ' + (clean_(data.name) || 'someone') + ' (' + answered.length + ' questions answered).\n\n' +
+          answered.map(function (a) { return a.n + '. ' + a.q + '\n   ' + clean_(a.a); }).join('\n\n') +
+          '\n\nSee them in the "' + Q_TAB + '" tab:\n' + ss.getUrl();
+        MailApp.sendEmail(NOTIFY_EMAIL, 'Covenant Life website questionnaire received', body);
+      } catch (mailErr) { /* answers are still saved in the sheet */ }
+    }
     return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err.message || err) }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+/** Finds or creates the answers tab with the right column titles. */
+function questionnaireSheet_(ss, answers) {
+  let sh = ss.getSheetByName(Q_TAB);
+  if (sh && sh.getLastRow() > 0 && sh.getRange(1, 1).getValue() !== 'Response ID') {
+    sh.setName(Q_TAB + ' (old ' + Utilities.formatDate(new Date(), TZ, 'MMM d h-mm a') + ')');
+    sh = null;
+  }
+  if (!sh) sh = ss.insertSheet(Q_TAB);
+  if (sh.getLastRow() === 0) {
+    const headers = Q_FIXED.concat(answers.map(function (a) { return a.n + '. ' + a.q; }));
+    sh.getRange(1, 1, 1, headers.length).setValues([headers])
+      .setBackground(BURGUNDY).setFontColor('#ffffff').setFontWeight('bold').setWrap(true).setVerticalAlignment('top');
+    sh.setFrozenRows(1);
+    sh.setFrozenColumns(4);
+    sh.setColumnWidths(1, headers.length, 260);
+    sh.setColumnWidth(1, 90); sh.setColumnWidth(2, 110); sh.setColumnWidth(3, 140);
+    sh.hideColumns(1);
+    sh.setTabColor(GOLD);
+    sh.getRange('B2:B1000').setFontWeight('bold');
+    const rules = sh.getConditionalFormatRules();
+    rules.push(SpreadsheetApp.newConditionalFormatRule().whenTextStartsWith('Sent')
+      .setBackground('#e3f2e6').setFontColor('#1f4d22').setRanges([sh.getRange('B2:B1000')]).build());
+    rules.push(SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo('In progress')
+      .setBackground('#fbf0d8').setFontColor('#7a5410').setRanges([sh.getRange('B2:B1000')]).build());
+    sh.setConditionalFormatRules(rules);
+  }
+  return sh;
 }
 
 /** Run this once from the editor to approve email sending and test it. */
