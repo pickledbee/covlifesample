@@ -77,6 +77,7 @@ function onOpen() {
     .createMenu('Church Website')
     .addItem('Open the admin page', 'showAdminLink')
     .addItem('Refresh the website now', 'refreshWebsiteNow')
+    .addItem('Get questionnaire answers for Claude', 'showAnswersForClaude')
     .addSeparator()
     .addItem('Set or change the admin passcode', 'setPasscode')
     .addItem('Set up or repair this sheet', 'setupSheet')
@@ -762,4 +763,50 @@ function testQuestionnaireSave() {
   const out = doPost(fake).getContent();
   Logger.log(out);
   try { SpreadsheetApp.getUi().alert('Result: ' + out); } catch (e) {}
+}
+
+// ===================== QUESTIONNAIRE ANSWERS FOR CLAUDE =====================
+/** Opens a window with the answers written out, ready to copy or download. */
+function showAnswersForClaude() {
+  const html = HtmlService.createHtmlOutputFromFile('answers').setWidth(900).setHeight(640);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Questionnaire answers for Claude');
+}
+
+/** Returns one entry per person, plus an "everyone" entry, each as ready-to-paste text. */
+function getAnswersForClaude() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sh = ss.getSheetByName(Q_TAB);
+  if (!sh || sh.getLastRow() < 2) return [];
+  const vals = sh.getDataRange().getValues();
+  const head = vals[0];
+  const people = vals.slice(1).filter(function (r) {
+    return r.slice(3).some(function (v) { return String(v).trim() !== ''; });
+  });
+  const intro = 'Here are the questionnaire answers from Covenant Life Presbyterian Church (Shawano, WI).\n' +
+    'Please use them to update the Covenant Life website in the GitHub repository pickledbee/covlifesample.\n' +
+    'Replace placeholders with this real information, and list anything still missing or unclear.\n';
+  function block(r) {
+    const when = r[2] instanceof Date ? Utilities.formatDate(r[2], TZ, 'MMM d, yyyy h:mm a') : String(r[2]);
+    const lines = ['ANSWERS FROM: ' + (r[3] || '(no name given)') +
+      (r[4] ? '  |  Contact: ' + r[4] : '') + (r[5] ? '  |  Helped by: ' + r[5] : ''),
+      'Status: ' + r[1] + '  |  Last updated: ' + when, ''];
+    const blanks = [];
+    for (let c = Q_FIXED.length; c < head.length; c++) {
+      const q = String(head[c]);
+      const a = String(r[c] == null ? '' : r[c]).trim();
+      if (!q) continue;
+      if (a) lines.push(q, '   Answer: ' + a, '');
+      else blanks.push(q.split('.')[0]);
+    }
+    if (blanks.length) lines.push('Not answered: questions ' + blanks.join(', '));
+    return lines.join('\n');
+  }
+  const out = people.map(function (r) {
+    return { label: (r[3] || 'No name') + ' (' + r[1] + ')', text: intro + '\n' + block(r) };
+  });
+  if (people.length > 1) {
+    out.unshift({ label: 'Everyone (' + people.length + ' people)',
+      text: intro + '\n' + people.map(block).join('\n\n----------------------------------------\n\n') });
+  }
+  return out;
 }

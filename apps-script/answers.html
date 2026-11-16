@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#2b1c1e}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  label{font-weight:bold}
+  select{font:inherit;padding:8px 10px;border:2px solid #e3d6c9;border-radius:8px;min-width:280px}
+  .btn{font:inherit;font-weight:bold;border:0;border-radius:8px;padding:10px 18px;cursor:pointer}
+  .copy{background:#511d21;color:#fff}
+  .dl{background:#f3c66b;color:#2a1a06}
+  .help{background:#fbf0d8;color:#6b4a0c;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:14px;line-height:1.45}
+  textarea{width:100%;height:440px;font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.45;border:2px solid #e3d6c9;border-radius:8px;padding:12px;resize:vertical}
+  .msg{font-weight:bold;color:#256b3a;min-height:20px;margin-top:8px}
+  .empty{padding:40px;text-align:center;color:#6b5a5c;font-size:16px}
+</style>
+</head>
+<body>
+<div id="loading" class="empty">Gathering the answers...</div>
+<div id="main" style="display:none">
+  <div class="help">Click <b>Copy</b>, then go to your chat with Claude and paste (Ctrl + V). Or click <b>Download</b> to save a text file you can attach.</div>
+  <div class="bar">
+    <label for="who">Whose answers:</label>
+    <select id="who"></select>
+    <button class="btn copy" id="copyBtn" type="button">Copy</button>
+    <button class="btn dl" id="dlBtn" type="button">Download</button>
+  </div>
+  <textarea id="text" readonly></textarea>
+  <div class="msg" id="msg" role="status"></div>
+</div>
+<script>
+  var DATA=[];
+  function show(i){document.getElementById('text').value=DATA[i]?DATA[i].text:'';}
+  google.script.run.withSuccessHandler(function(list){
+    document.getElementById('loading').style.display='none';
+    if(!list||!list.length){document.getElementById('loading').style.display='block';document.getElementById('loading').textContent='No answers yet. When someone fills out the questions page, their answers will show up here.';return;}
+    DATA=list;
+    var sel=document.getElementById('who');
+    list.forEach(function(p,i){var o=document.createElement('option');o.value=i;o.textContent=p.label;sel.appendChild(o);});
+    sel.onchange=function(){show(sel.value);};
+    show(0);
+    document.getElementById('main').style.display='block';
+  }).withFailureHandler(function(e){
+    document.getElementById('loading').textContent='Something went wrong: '+(e&&e.message?e.message:e);
+  }).getAnswersForClaude();
+
+  document.getElementById('copyBtn').onclick=function(){
+    var t=document.getElementById('text'),m=document.getElementById('msg');
+    t.focus();t.select();
+    var ok=false;try{ok=document.execCommand('copy');}catch(e){}
+    if(ok){m.textContent='Copied! Now paste it into your chat with Claude.';}
+    else if(navigator.clipboard){navigator.clipboard.writeText(t.value).then(function(){m.textContent='Copied! Now paste it into your chat with Claude.';},function(){m.textContent='The text is selected. Press Ctrl + C to copy it.';});}
+    else{m.textContent='The text is selected. Press Ctrl + C to copy it.';}
+  };
+  document.getElementById('dlBtn').onclick=function(){
+    var blob=new Blob([document.getElementById('text').value],{type:'text/plain'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='Covenant-Life-Questionnaire-Answers.txt';document.body.appendChild(a);a.click();a.remove();
+    document.getElementById('msg').textContent='Downloaded. Look in your Downloads folder for Covenant-Life-Questionnaire-Answers.txt.';
+  };
+</script>
+</body>
+</html>
