@@ -670,6 +670,7 @@ function doPost(e) {
     try {
       ss = SpreadsheetApp.openById(SHEET_ID);
       sh = questionnaireSheet_(ss, data.answers);
+      syncQuestionHeaders_(sh, data.answers);
       const row = [id, isFinal ? 'Sent' : 'In progress', new Date(),
                    clean_(data.name), clean_(data.contact), clean_(data.helpers)]
         .concat(data.answers.map(function (a) { return clean_(a.a); }));
@@ -700,6 +701,19 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({ ok: false, error: String(err.message || err) }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+/** Keeps the column titles matching the questions page (all questions, in order). */
+function syncQuestionHeaders_(sh, answers) {
+  const want = Q_FIXED.concat(answers.map(function (a) { return a.n + '. ' + a.q; }));
+  const lastCol = Math.max(sh.getLastColumn(), 1);
+  const have = sh.getRange(1, 1, 1, lastCol).getValues()[0];
+  // Only grow or replace the titles when this request carries at least as many questions
+  if (want.length < have.filter(String).length) return;
+  if (want.join('|') === have.slice(0, want.length).join('|')) return;
+  sh.getRange(1, 1, 1, want.length).setValues([want])
+    .setBackground(BURGUNDY).setFontColor('#ffffff').setFontWeight('bold').setWrap(true).setVerticalAlignment('top');
+  if (want.length > lastCol) sh.setColumnWidths(lastCol + 1, want.length - lastCol, 260);
 }
 
 /** Finds or creates the answers tab with the right column titles. */
