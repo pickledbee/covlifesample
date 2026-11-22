@@ -6,6 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Covenant Life OPC Redesign</title>
 <meta name="description" content="Covenant Life Presbyterian Church is a Reformed, Bible-teaching Orthodox Presbyterian church in Shawano, Wisconsin. Sunday School 9:30 AM, Worship 10:30 AM.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Covenant Life Presbyterian Church, Shawano">
+<meta property="og:description" content="A friendly, Bible-teaching church in Shawano, Wisconsin. Sunday School 9:30 AM, Worship 10:30 AM at 1415 E. Green Bay St.">
+<meta property="og:image" content="https://pickledbee.github.io/covlifesample/building.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Church","name":"Covenant Life Presbyterian Church","description":"A congregation of the Orthodox Presbyterian Church in Shawano, Wisconsin.","image":"https://pickledbee.github.io/covlifesample/building.jpg","telephone":"+1-715-853-1214","address":{"@type":"PostalAddress","streetAddress":"1415 E. Green Bay St.","addressLocality":"Shawano","addressRegion":"WI","postalCode":"54166","addressCountry":"US"},"sameAs":["https://www.facebook.com/share/1Rj338RpPW/"],"event":[{"@type":"Event","name":"Adult Sunday School","eventSchedule":{"@type":"Schedule","byDay":"https://schema.org/Sunday","startTime":"09:30","repeatFrequency":"P1W","scheduleTimezone":"America/Chicago"},"location":{"@type":"Place","name":"Covenant Life Presbyterian Church","address":"1415 E. Green Bay St., Shawano, WI 54166"}},{"@type":"Event","name":"Sunday Worship","eventSchedule":{"@type":"Schedule","byDay":"https://schema.org/Sunday","startTime":"10:30","repeatFrequency":"P1W","scheduleTimezone":"America/Chicago"},"location":{"@type":"Place","name":"Covenant Life Presbyterian Church","address":"1415 E. Green Bay St., Shawano, WI 54166"}}]}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -315,6 +323,21 @@ footer .glass-strip{margin-bottom:40px}
 .ann-banner span{opacity:.9}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important;animation:none!important}}
 
+/* ===== Building photo + Facebook ===== */
+.hero-photo{margin:0;justify-self:center;width:min(460px,100%)}
+.hero-photo img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:center 60%;border-radius:16px;border:3px solid rgba(243,198,107,.7);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.hero-photo figcaption{text-align:center;font-size:.95rem;opacity:.9;margin-top:10px}
+.photo-real{margin:0}
+.photo-real img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:14px;border:1px solid var(--line)}
+.photo-real figcaption{font-size:.92rem;color:var(--muted);margin-top:8px}
+.fb{background:linear-gradient(135deg,#1f3b5e,#2a4f7a);color:#f3f0ea}
+.fb .wrap{display:grid;grid-template-columns:auto 1fr auto;gap:20px 28px;align-items:center}
+.fb .eyebrow{color:var(--glow)}
+.fb .muted{color:#d6dfeb}
+.fb-logo{width:64px;height:64px;border-radius:16px;background:#fff;display:grid;place-items:center}
+.btn-fb{background:#1877f2;color:#fff;font-size:1.08rem;padding:14px 22px}
+@media (max-width:760px){.fb .wrap{grid-template-columns:1fr}}
+
 /* ===== Listen button ===== */
 .listen{position:fixed;left:16px;bottom:86px;z-index:42;display:flex;align-items:center;gap:10px;font:inherit;font-weight:700;font-size:1.15rem;
   background:linear-gradient(135deg,#6e2a2f,#511d21);color:#fff;border:2px solid #e9c77f;border-radius:999px;padding:13px 22px 13px 16px;cursor:pointer;
@@ -391,7 +414,7 @@ footer .glass-strip{margin-bottom:40px}
           <div class="time"><b>8:00 AM</b><span>On the radio, 96.1 FM &amp; AM 960</span></div>
         </div>
       </div>
-      <figure class="window" style="margin:0"><svg id="glass" viewBox="0 0 300 420" role="img" aria-label="Illustration of a stained-glass church window glowing with light"></svg><figcaption>Swap in a real photo of the congregation any time</figcaption></figure>
+      <figure class="hero-photo"><img src="building.jpg" width="1080" height="1078" alt="The front of Covenant Life Presbyterian Church, a stone building with a dark metal roof at 1415 E. Green Bay St. in Shawano" fetchpriority="high"><figcaption>Look for us at 1415 E. Green Bay St.</figcaption></figure>
     </div>
   </div>
 
@@ -402,6 +425,18 @@ footer .glass-strip{margin-bottom:40px}
       <a class="btn btn-wine" href="#visit">What to expect</a>
     </div>
   </div>
+
+  <section class="fb" aria-label="Facebook" style="padding:30px 0">
+    <div class="wrap">
+      <span class="fb-logo"><svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path fill="#1877f2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v2.9h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/></svg></span>
+      <div class="stack" style="gap:4px">
+        <div class="eyebrow">Follow along during the week</div>
+        <h2 style="font-size:clamp(1.5rem,3vw,2rem)">Find Covenant Life on Facebook</h2>
+        <p class="muted">See photos, reminders, prayer requests and event news between Sundays.</p>
+      </div>
+      <a class="btn btn-fb" href="https://www.facebook.com/share/1Rj338RpPW/" target="_blank" rel="noopener">Visit our Facebook page</a>
+    </div>
+  </section>
 
   <section id="annSection" style="padding-bottom:0" hidden>
     <div class="wrap">
@@ -562,7 +597,7 @@ footer .glass-strip{margin-bottom:40px}
         </ol>
         <p class="muted" style="font-size:.92rem">Order of worship shown as a typical example. <span class="ph">Confirm with church</span></p>
       </div>
-      <div class="photo light" role="img" aria-label="Placeholder for a photo of the front entrance"><div class="cap"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 21h18M5 21V10l7-6 7 6v11M10 21v-6h4v6"/></svg>Photo spot: the front of the building and the door visitors should use, so it looks familiar when they arrive.</div></div>
+      <figure class="photo-real"><img src="building.jpg" width="1080" height="1078" loading="lazy" alt="The front of the Covenant Life building on East Green Bay Street"><figcaption>This is what you'll see when you pull in at 1415 E. Green Bay St. <span class="ph">Confirm which door to use</span></figcaption></figure>
     </div>
   </section>
   <section>
@@ -764,7 +799,7 @@ footer .glass-strip{margin-bottom:40px}
           <div><dt>Address</dt><dd style="margin:0">1415 E. Green Bay St., Shawano, WI</dd></div>
           <div><dt>Sunday</dt><dd style="margin:0">Sunday School 9:30 AM &middot; Worship 10:30 AM</dd></div>
           <div><dt>Radio</dt><dd style="margin:0">Sundays 8:00 AM, 96.1 FM &amp; AM 960 WTCH</dd></div>
-          <div><dt>Facebook</dt><dd style="margin:0">[link] <span class="ph">Add if they have one</span></dd></div>
+          <div><dt>Facebook</dt><dd style="margin:0"><a href="https://www.facebook.com/share/1Rj338RpPW/" target="_blank" rel="noopener">Covenant Life on Facebook</a></dd></div>
         </dl>
         <a class="btn btn-wine" style="align-self:start" href="https://www.google.com/maps/dir/?api=1&amp;destination=1415+E+Green+Bay+St,+Shawano,+WI+54166">Get directions</a>
       </div>
@@ -800,7 +835,7 @@ footer .glass-strip{margin-bottom:40px}
         <p style="opacity:.9">A congregation of the Orthodox Presbyterian Church.<br>Come as you are. Leave renewed.</p>
       </div>
       <div><h4>Sundays</h4><ul><li>Adult Sunday School 9:30 AM</li><li>Worship 10:30 AM</li><li>Radio 8:00 AM, 96.1 FM &amp; AM 960</li></ul></div>
-      <div><h4>Visit</h4><ul><li>1415 E. Green Bay St.</li><li>Shawano, WI</li><li><a href="tel:+17158531214">715-853-1214</a></li></ul></div>
+      <div><h4>Visit</h4><ul><li>1415 E. Green Bay St.</li><li>Shawano, WI</li><li><a href="tel:+17158531214">715-853-1214</a></li><li><a href="https://www.facebook.com/share/1Rj338RpPW/" target="_blank" rel="noopener">Facebook</a></li></ul></div>
       <div><h4>Explore</h4><ul><li><a href="#visit">Plan a Visit</a></li><li><a href="#about">What We Believe</a></li><li><a href="#sermons">Sermons</a></li><li><a href="#give">Give</a></li></ul></div>
     </div>
     <div class="fine"><span>&copy; <span id="yr">2026</span> Covenant Life Presbyterian Church, Shawano, Wisconsin</span><a href="https://opc.org/">Orthodox Presbyterian Church</a></div>
@@ -835,12 +870,15 @@ footer .glass-strip{margin-bottom:40px}
     <li>Next meeting dates for each group, worked out automatically</li>
     <li>Catechism question of the week, newsletter signup</li>
     <li>Larger-text button, dark mode, mobile Call/Directions bar</li>
+    <li>Real photo of the building at the top and on Plan a Visit</li>
+    <li>Facebook link on the home page, Contact page and footer</li>
+    <li>Google-friendly church info (address, service times) and a photo preview when the site is shared on Facebook</li>
   </ul>
   <b>Please confirm with the church</b>
   <ul>
     <li>Pastor's name, bio and photo</li>
     <li>Ladies' Bible Study is listed as "1st and 2nd Mondays." Is that correct, or is it 1st and 3rd?</li>
-    <li>Church email, Facebook, giving method</li>
+    <li>Church email and giving method</li>
     <li>Founding year and milestones; elders and deacons</li>
   </ul>
 </aside>
